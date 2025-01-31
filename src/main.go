@@ -14,6 +14,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+// Структура для хранения конфигурации БД
 type dbConfig struct {
 	User     string
 	Password string
@@ -22,6 +23,7 @@ type dbConfig struct {
 	Name     string
 }
 
+// Конфигурация БД
 var dbCfg = dbConfig{
 	User:     os.Getenv("DB_USER"),
 	Password: os.Getenv("DB_PASSWORD"),
@@ -30,6 +32,7 @@ var dbCfg = dbConfig{
 	Name:     os.Getenv("DB_NAME"),
 }
 
+// Вывод конфигурации БД
 func printDBConfig() {
 	fmt.Println("DB_USER:", dbCfg.User)
 	fmt.Println("DB_PASSWORD:", dbCfg.Password)
@@ -40,6 +43,7 @@ func printDBConfig() {
 
 var db *sql.DB
 
+// Инициализация подключения к БД
 func initDB() {
 	time.Sleep(10 * time.Second)
 
@@ -50,7 +54,7 @@ func initDB() {
 		dbCfg.Name,
 	)
 
-	printDBConfig()
+	//printDBConfig()
 
 	db, err = sql.Open("mysql", dsn)
 	if err != nil {
@@ -64,73 +68,79 @@ func initDB() {
 	fmt.Println("Подключено к MySQL!")
 }
 
+// Структура для хранения записи
 type Record struct {
 	ID      int     `json:"id"`
 	Balance float64 `json:"balance"`
 	Time    string  `json:"last_time"`
 }
 
-// Создание записи
-func createRecord(w http.ResponseWriter, r *http.Request) {
-	var record Record
-
-	err := json.NewDecoder(r.Body).Decode(&record)
-	if err != nil {
-		http.Error(w, "Ошибка парсинга JSON", http.StatusBadRequest)
-		return
-	}
-
-	if record.ID != 0 {
-		_, err = db.Exec("INSERT INTO users (id, balance) VALUES (?, ?)", record.ID, record.Balance)
-	} else {
-		_, err = db.Exec("INSERT INTO users (balance) VALUES (?)", record.Balance)
-	}
-
-	if err != nil {
-		http.Error(w, "Ошибка записи в БД", http.StatusInternalServerError)
-		return
-	}
-
+func responseRecord(w http.ResponseWriter, record Record) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(record)
+
+	responseJSON, err := json.MarshalIndent(record, "", "  ")
+	if err != nil {
+		http.Error(w, "Ошибка формирования JSON", http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(append(responseJSON, '\n'))
+}
+
+// Структура для вывода ошибки в формате JSON
+type ErrorResponse struct {
+	Error   int    `json:"error"`
+	Message string `json:"message"`
+}
+
+// Вывод кода ошибки в формате JSON
+func responseError(w http.ResponseWriter, statusCode int, errMsg string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+
+	response := ErrorResponse{
+		Error:   statusCode,
+		Message: errMsg,
+	}
+
+	responseJSON, _ := json.MarshalIndent(response, "", "  ")
+
+	w.Write(append(responseJSON, '\n'))
 }
 
 // Получение записи по ID
 func getRecordByID(w http.ResponseWriter, r *http.Request) {
 	userID := r.URL.Query().Get("id")
 	if userID == "" {
-		http.Error(w, `{"status": "error", "message": "ID пользователя не указан"}`, http.StatusBadRequest)
+		responseError(w, 400, "Параметр id обязателен")
 		return
 	}
 
 	var record Record
-	err := db.QueryRow("SELECT id, balance, time FROM users WHERE id = ?", userID).Scan(&record.ID, &record.Balance, &record.Time)
+	err := db.QueryRow("SELECT id, balance, last_time FROM users WHERE id = ?", userID).Scan(&record.ID, &record.Balance, &record.Time)
+
 	if err != nil {
-		http.Error(w, `{"status": "error", "message": "Пользователь не найден"}`, http.StatusNotFound)
+		responseError(w, 404, "Пользователь не найден")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(record)
+	responseRecord(w, record)
 }
 
 func getCountOfUsers(w http.ResponseWriter, r *http.Request) {
 	var count int
-	// Выполняем запрос к БД
 	err := db.QueryRow("SELECT COUNT(DISTINCT id) FROM users").Scan(&count)
 	if err != nil {
-		// Логируем ошибку и отправляем ответ с ошибкой в тело ответа
 		log.Println("Ошибка запроса к БД:", err)
 		http.Error(w, "Ошибка запроса к базе данных", http.StatusInternalServerError)
 		return
 	}
-	// Отправляем результат пользователю
+
 	fmt.Fprintf(w, "Количество пользователей: %d\n", count)
 }
 
 func main() {
 	initDB()
-	http.HandleFunc("/createRecord", createRecord)
 	http.HandleFunc("/getRecordByID", getRecordByID)
 	http.HandleFunc("/getCountOfUsers", getCountOfUsers)
 	log.Fatal(http.ListenAndServe(":8080", nil))

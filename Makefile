@@ -32,3 +32,6 @@ clean:
 	docker rm $(Container_Name)
 	docker rmi $(Image_Name)
 .PHONY: clean
+
+delete:
+	docker rmi -f $(docker images -aq) 
