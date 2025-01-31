@@ -33,5 +33,8 @@ clean:
 	docker rmi $(Image_Name)
 .PHONY: clean
 
+app:
+	go build -o app ./src/app
+
 delete:
 	docker rmi -f $(docker images -aq) 
