@@ -20,7 +20,7 @@ func getAllRecords(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			getResponseRecord(w, record)
+			getResponseRecord(w, record, "users")
 			return
 		}
 		rows, err = db.Query("SELECT * FROM users ORDER BY id LIMIT ?", limitStr)
@@ -51,5 +51,5 @@ func getAllRecords(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	getResponseRecords(w, records)
+	getResponseRecords(w, records, "users")
 }

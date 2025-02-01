@@ -12,7 +12,11 @@ type Count struct {
 func getResponceCount(w http.ResponseWriter, count Count) {
 	w.Header().Set("Content-Type", "application/json")
 
-	responseJSON, err := json.MarshalIndent(count, "", "  ")
+	response := map[string]Count{
+		"agregation": count,
+	}
+
+	responseJSON, err := json.MarshalIndent(response, "", "  ")
 	if err != nil {
 		http.Error(w, "Ошибка формирования JSON", http.StatusInternalServerError)
 		return

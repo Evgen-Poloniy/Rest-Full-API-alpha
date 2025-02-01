@@ -14,10 +14,14 @@ type Record struct {
 	Time    string  `json:"last_time"`
 }
 
-func getResponseRecord(w http.ResponseWriter, record Record) {
+func getResponseRecord(w http.ResponseWriter, record Record, tableName string) {
 	w.Header().Set("Content-Type", "application/json")
 
-	responseJSON, err := json.MarshalIndent(record, "", "  ")
+	response := map[string]Record{
+		tableName: record,
+	}
+
+	responseJSON, err := json.MarshalIndent(response, "", "  ")
 	if err != nil {
 		http.Error(w, "Ошибка формирования JSON", http.StatusInternalServerError)
 		return
@@ -26,16 +30,22 @@ func getResponseRecord(w http.ResponseWriter, record Record) {
 	w.Write(append(responseJSON, '\n'))
 }
 
-func getResponseRecords(w http.ResponseWriter, records []Record) {
+type Responses struct {
+	Data []Record `json:"data"`
+}
+
+func getResponseRecords(w http.ResponseWriter, records []Record, tableName string) {
 	w.Header().Set("Content-Type", "application/json")
 
-	// Формируем JSON с отступами
-	responseJSON, err := json.MarshalIndent(records, "", "  ")
+	response := map[string][]Record{
+		tableName: records,
+	}
+
+	responseJSON, err := json.MarshalIndent(response, "", "  ")
 	if err != nil {
 		http.Error(w, "Ошибка формирования JSON", http.StatusInternalServerError)
 		return
 	}
 
-	// Отправляем JSON клиенту
 	w.Write(append(responseJSON, '\n'))
 }

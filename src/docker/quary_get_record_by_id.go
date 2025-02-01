@@ -20,5 +20,5 @@ func getRecordByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	getResponseRecord(w, record)
+	getResponseRecord(w, record, "users")
 }

@@ -23,4 +23,14 @@ func createRecord(w http.ResponseWriter, r *http.Request) {
 		getResponseError(w, http.StatusInternalServerError, "Ошибка при вставке записи")
 		return
 	}
+
+	var record Record
+	err = db.QueryRow("SELECT * FROM users WHERE id = (SELECT MAX(id) FROM users);").Scan(&record.ID, &record.Balance, &record.Time)
+
+	if err != nil {
+		getResponseError(w, 404, "Пользователь не найден")
+		return
+	}
+
+	getResponseRecord(w, record, "users")
 }

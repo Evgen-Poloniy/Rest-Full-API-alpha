@@ -18,9 +18,11 @@ func getResponseError(w http.ResponseWriter, statusCode int, errMsg string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 
-	response := ErrorResponse{
-		Error:   statusCode,
-		Message: errMsg,
+	response := map[string]ErrorResponse{
+		"errors": {
+			Error:   statusCode,
+			Message: errMsg,
+		},
 	}
 
 	responseJSON, _ := json.MarshalIndent(response, "", "  ")
