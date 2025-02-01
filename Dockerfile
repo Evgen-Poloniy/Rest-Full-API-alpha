@@ -2,7 +2,7 @@ FROM golang:1.22.2 AS builder
 
 WORKDIR /app
 
-COPY libs/ ./
+COPY libs/docker ./
 RUN go mod download
 
 COPY src/docker ./src/

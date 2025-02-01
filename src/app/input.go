@@ -15,16 +15,19 @@ func input() {
 
 		switch chose {
 		case 1:
-			makeRequest("GET", "localhost", 8080, "/getRecordByID?id=1")
+			makeRequest("GET", ipConfig.Ip, ipConfig.Port, "/getCountOfUsers")
 			fmt.Println("Нажмите Enter для продолжения...")
 			fmt.Scanln()
 
 		case 2:
-			makeRequest("GET", "localhost", 8080, "/getCountOfUsers")
+			makeRequest("GET", ipConfig.Ip, ipConfig.Port, "/getRecordByID?id=1")
 			fmt.Println("Нажмите Enter для продолжения...")
 			fmt.Scanln()
 
 		case 7:
+			changeIpConfig()
+
+		case 8:
 			fmt.Println("Произведен выход...")
 			return
 

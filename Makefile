@@ -8,7 +8,7 @@ all: build up
 
 build:
 	docker-compose build
-.PHONY: dcbuild
+.PHONY: build
 
 up:
 	docker-compose up
@@ -33,8 +33,12 @@ clean:
 	docker rmi $(Image_Name)
 .PHONY: clean
 
-app:
-	go build -o app ./src/app
+comp:
+	go build -o ./bin64/DBMS ./src/app
+
+run:
+	@./bin64/DBMS
 
 delete:
-	docker rmi -f $(docker images -aq) 
+	docker rmi -f $(docker images -aq)
+.PHONY: delete
