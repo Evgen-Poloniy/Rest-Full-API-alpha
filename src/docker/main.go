@@ -10,7 +10,9 @@ import (
 
 func main() {
 	initDB()
-	http.HandleFunc("/getRecordByID", getRecordByID)
+	http.HandleFunc("/createRecord", createRecord)
 	http.HandleFunc("/getCountOfUsers", getCountOfUsers)
+	http.HandleFunc("/getRecordByID", getRecordByID)
+	http.HandleFunc("/getAllRecords", getAllRecords)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

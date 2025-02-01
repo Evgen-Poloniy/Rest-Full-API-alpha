@@ -6,7 +6,7 @@ import (
 )
 
 type Count struct {
-	Out int `json:"out"`
+	Out int `json:"count"`
 }
 
 func getResponceCount(w http.ResponseWriter, count Count) {
