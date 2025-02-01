@@ -14,7 +14,7 @@ type ErrorResponse struct {
 }
 
 // Вывод кода ошибки в формате JSON
-func responseError(w http.ResponseWriter, statusCode int, errMsg string) {
+func getResponseError(w http.ResponseWriter, statusCode int, errMsg string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 

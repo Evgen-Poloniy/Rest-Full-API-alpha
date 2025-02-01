@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	//"os/user"
-
 	_ "github.com/go-sql-driver/mysql"
 )
 

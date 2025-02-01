@@ -14,7 +14,7 @@ type Record struct {
 	Time    string  `json:"last_time"`
 }
 
-func responseRecord(w http.ResponseWriter, record Record) {
+func getResponseRecord(w http.ResponseWriter, record Record) {
 	w.Header().Set("Content-Type", "application/json")
 
 	responseJSON, err := json.MarshalIndent(record, "", "  ")
