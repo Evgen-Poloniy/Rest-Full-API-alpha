@@ -32,7 +32,7 @@ func input() {
 		case 2:
 			var id string = inputParametrs("Введите id пользователя:")
 			makeRequest("DELETE", ipConfig.Ip, ipConfig.Port, "/deleteRecordById?id="+id)
-			fmt.Println("Запись с введенным id была удалена")
+			fmt.Println("Запись с id =", id, "была удалена")
 			fmt.Println("Нажмите Enter для продолжения...")
 			fmt.Scanln()
 
