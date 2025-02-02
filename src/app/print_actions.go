@@ -19,12 +19,16 @@ func printActions() {
 	fmt.Println("| Status: ", printStatusConnection(ipConfig.Status))
 	fmt.Println("*----------------------------*")
 	fmt.Println("Выберите действие:")
-	fmt.Println("1. Создать новую учетную запись")
-	fmt.Println("2. Удалить учетную запись")
-	fmt.Println("3. Получить запись по ID")
-	fmt.Println("4. Получить все записи")
-	fmt.Println("6. Получить количество пользователей")
-	fmt.Println("7. Изменить параметры сети")
+	if ipConfig.Status {
+		fmt.Println("1. Создать новую учетную запись")
+		fmt.Println("2. Удалить учетную запись")
+		fmt.Println("3. Получить запись по ID")
+		fmt.Println("4. Получить все записи")
+		fmt.Println("6. Получить количество пользователей")
+		fmt.Println("7. Сделать транзакцию")
+	}
+	fmt.Println("9. Проверить соединение")
+	fmt.Println("10. Изменить параметры сети")
 
 	fmt.Println("q. Выйти")
 }
