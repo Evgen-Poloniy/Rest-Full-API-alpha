@@ -18,6 +18,14 @@ down:
 	docker-compose down
 .PHONY: down
 
+start:
+	docker start go-api
+.PHONY: start
+
+stop:
+	docker stop go-api
+.PHONY: stop
+
 list:
 	@echo "*------------------------------------------------------------------------------------------------------*" 
 	@docker images 

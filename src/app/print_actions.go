@@ -4,11 +4,20 @@ import (
 	"fmt"
 )
 
+func printStatusConnection(status bool) string {
+	if status {
+		return "\033[32mСоединение установлено\033[0m"
+	}
+
+	return "\033[31mНет соединения\033[0m"
+}
+
 func printActions() {
-	fmt.Println("*----------------------*")
+	fmt.Println("*----------------------------*")
 	fmt.Println("| IP: ", ipConfig.Ip)
 	fmt.Println("| PORT: ", ipConfig.Port)
-	fmt.Println("*----------------------*")
+	fmt.Println("| Status: ", printStatusConnection(ipConfig.Status))
+	fmt.Println("*----------------------------*")
 	fmt.Println("Выберите действие:")
 	fmt.Println("1. Создать новую учетную запись")
 	fmt.Println("2. Удалить учетную запись")
@@ -17,5 +26,5 @@ func printActions() {
 	fmt.Println("6. Получить количество пользователей")
 	fmt.Println("7. Изменить параметры сети")
 
-	fmt.Println("8. Выйти")
+	fmt.Println("q. Выйти")
 }

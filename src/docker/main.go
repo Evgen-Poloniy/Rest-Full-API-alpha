@@ -10,10 +10,16 @@ import (
 
 func main() {
 	initDB()
-	http.HandleFunc("/createRecord", createRecord)
-	http.HandleFunc("/deleteRecordById", deleteRecordById)
-	http.HandleFunc("/getRecordByID", getRecordByID)
-	http.HandleFunc("/getAllRecords", getAllRecords)
-	http.HandleFunc("/getCountOfUsers", getCountOfUsers)
+	/*
+		http.HandleFunc("/checkConnection", checkConnectionHandler)
+		http.HandleFunc("/users/createRecord", createRecord)
+		http.HandleFunc("/users/deleteRecordById", deleteRecordById)
+		http.HandleFunc("/users/getRecordByID", getRecordByID)
+		http.HandleFunc("/users/getAllRecords", getAllRecords)
+		http.HandleFunc("/transaction/getRecordByID", getRecordByID)
+		http.HandleFunc("/transaction/getAllRecords", getAllRecords)
+		http.HandleFunc("/users/getCountOfUsers", getCountOfUsers)
+	*/
+	http.HandleFunc("/", dynamicHandler)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

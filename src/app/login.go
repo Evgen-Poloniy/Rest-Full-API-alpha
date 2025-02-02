@@ -7,8 +7,9 @@ import (
 )
 
 type IpConfig struct {
-	Ip   string
-	Port int
+	Ip     string
+	Port   int
+	Status bool
 }
 
 var ipConfig IpConfig
@@ -20,20 +21,38 @@ func fileExists(filePath string) bool {
 
 func changeIpConfig() {
 	fmt.Println("Введите ip-адресс сервера:")
-	fmt.Scanln(&ipConfig.Ip)
+	var inputedIp string
+	fmt.Scanln(&inputedIp)
 
 	fmt.Println("Введите порт:")
-	fmt.Scanln(&ipConfig.Port)
+	var inputedPort int
+	fmt.Scanln(&inputedPort)
 
-	file, err := os.Create("./data/ipconfig.txt")
-	if err != nil {
-		fmt.Println("Ошибка при создании файлы", err)
+	if inputedIp == "" && inputedPort == 0 {
+		return
 	}
 
-	defer file.Close()
+	fmt.Println("Принять изменения? y/n:")
+	var answer string
+	fmt.Scanln(&answer)
 
-	file.WriteString(ipConfig.Ip + "\n")
-	file.WriteString(strconv.Itoa(ipConfig.Port) + "\n")
+	if answer == "y" {
+		file, err := os.Create("./data/ipconfig.txt")
+		if err != nil {
+			fmt.Println("Ошибка при создании файла", err)
+			return
+		}
+
+		defer file.Close()
+
+		ipConfig.Ip = inputedIp
+		ipConfig.Port = inputedPort
+
+		file.WriteString(ipConfig.Ip + "\n")
+		file.WriteString(strconv.Itoa(ipConfig.Port) + "\n")
+	} else {
+		return
+	}
 }
 
 func logIn() {
@@ -43,6 +62,7 @@ func logIn() {
 			fmt.Println("Ошибка при открытии файла:", err)
 			return
 		}
+
 		defer file.Close()
 
 		_, err = fmt.Fscanf(file, "%s\n%d", &ipConfig.Ip, &ipConfig.Port)
@@ -53,4 +73,5 @@ func logIn() {
 	} else {
 		changeIpConfig()
 	}
+	checkConnection(&ipConfig)
 }

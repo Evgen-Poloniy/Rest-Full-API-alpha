@@ -5,7 +5,7 @@ import (
 )
 
 // Получение записи по ID
-func getRecordByID(w http.ResponseWriter, r *http.Request) {
+func getRecordByID(w http.ResponseWriter, r *http.Request, table string) {
 	userID := r.URL.Query().Get("id")
 	if userID == "" {
 		getResponseError(w, 400, "Параметр id обязателен")
@@ -13,7 +13,7 @@ func getRecordByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var record Record
-	err := db.QueryRow("SELECT id, balance, last_time FROM users WHERE id = ?", userID).Scan(&record.ID, &record.Balance, &record.Time)
+	err := db.QueryRow("SELECT * FROM "+table+" WHERE id = ?", userID).Scan(&record.ID, &record.Balance, &record.Time)
 
 	if err != nil {
 		getResponseError(w, 404, "Пользователь не найден")

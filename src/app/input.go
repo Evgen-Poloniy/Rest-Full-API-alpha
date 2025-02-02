@@ -14,7 +14,7 @@ func inputParametrs(message string) string {
 }
 
 func input() {
-	var chose int
+	var chose string
 
 	for {
 		clearConsole()
@@ -22,45 +22,38 @@ func input() {
 		fmt.Scanln(&chose)
 		clearConsole()
 
-		switch chose {
-		case 1:
+		if chose == "1" {
 			var balance string = inputParametrs("Введите баланс:")
-			makeRequest("POST", ipConfig.Ip, ipConfig.Port, "/createRecord?balance="+balance)
+			makeRequest("POST", ipConfig.Ip, ipConfig.Port, "/users/createRecord?balance="+balance)
 			fmt.Println("Нажмите Enter для продолжения...")
 			fmt.Scanln()
-
-		case 2:
+		} else if chose == "2" {
 			var id string = inputParametrs("Введите id пользователя:")
-			makeRequest("DELETE", ipConfig.Ip, ipConfig.Port, "/deleteRecordById?id="+id)
+			makeRequest("DELETE", ipConfig.Ip, ipConfig.Port, "/users/deleteRecordById?id="+id)
 			fmt.Println("Запись с id =", id, "была удалена")
 			fmt.Println("Нажмите Enter для продолжения...")
 			fmt.Scanln()
-
-		case 3:
+		} else if chose == "3" {
 			var id string = inputParametrs("Введите id пользователя:")
-			makeRequest("GET", ipConfig.Ip, ipConfig.Port, "/getRecordByID?id="+id)
+			makeRequest("GET", ipConfig.Ip, ipConfig.Port, "/users/getRecordByID?id="+id)
 			fmt.Println("Нажмите Enter для продолжения...")
 			fmt.Scanln()
-
-		case 4:
+		} else if chose == "4" {
 			var limit string = inputParametrs("Ввведите ограничение на кол-во записей:")
-			makeRequest("GET", ipConfig.Ip, ipConfig.Port, "/getAllRecords?limit="+limit)
+			makeRequest("GET", ipConfig.Ip, ipConfig.Port, "/users/getAllRecords?limit="+limit)
 			fmt.Println("Нажмите Enter для продолжения...")
 			fmt.Scanln()
-
-		case 6:
-			makeRequest("GET", ipConfig.Ip, ipConfig.Port, "/getCountOfUsers")
+		} else if chose == "6" {
+			makeRequest("GET", ipConfig.Ip, ipConfig.Port, "/users/getCountOfRecords")
 			fmt.Println("Нажмите Enter для продолжения...")
 			fmt.Scanln()
-
-		case 7:
+		} else if chose == "7" {
 			changeIpConfig()
-
-		case 8:
+			checkConnection(&ipConfig)
+		} else if chose == "q" {
 			fmt.Println("Произведен выход...")
 			return
-
-		default:
+		} else {
 			fmt.Println("Неверный ввод")
 			fmt.Println("Нажмите Enter для продолжения...")
 			fmt.Scanln()
