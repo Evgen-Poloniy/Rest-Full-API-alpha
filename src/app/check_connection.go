@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -16,4 +17,11 @@ func checkConnection(ipConfig *IpConfig) {
 	}
 	defer resp.Body.Close()
 	ipConfig.Status = resp.StatusCode == http.StatusOK
+}
+
+func PrintMessageAboutStatusConnection() {
+	if !ipConfig.Status {
+		fmt.Println("Нет соединения. Проверьте данные ip-адреса и порта или повторите попытку позже")
+		waitInput()
+	}
 }

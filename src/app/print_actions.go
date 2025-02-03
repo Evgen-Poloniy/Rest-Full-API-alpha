@@ -13,11 +13,11 @@ func printStatusConnection(status bool) string {
 }
 
 func printActions() {
-	fmt.Println("*----------------------------*")
+	fmt.Println("*------------------------------------*")
 	fmt.Println("| IP: ", ipConfig.Ip)
 	fmt.Println("| PORT: ", ipConfig.Port)
 	fmt.Println("| Status: ", printStatusConnection(ipConfig.Status))
-	fmt.Println("*----------------------------*")
+	fmt.Println("*------------------------------------*")
 	fmt.Println("Выберите действие:")
 	if ipConfig.Status {
 		fmt.Println("1. Создать новую учетную запись")

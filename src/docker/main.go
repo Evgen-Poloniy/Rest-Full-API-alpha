@@ -10,6 +10,7 @@ import (
 
 func main() {
 	initDB()
+	defer db.Close()
 	/*
 		http.HandleFunc("/checkConnection", checkConnectionHandler)
 		http.HandleFunc("/users/createRecord", createRecord)
@@ -22,5 +23,6 @@ func main() {
 	*/
 	http.HandleFunc("/", dynamicHandler)
 	http.HandleFunc("/users/makeTransaction", makeTransaction)
+	http.HandleFunc("/checkConnection", checkConnectionHandler)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

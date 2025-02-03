@@ -22,32 +22,41 @@ func makeTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tx, err := db.Begin()
-	if err != nil {
-		getResponseError(w, http.StatusInternalServerError, "Ошибка при запуске транзакции")
-		return
-	}
+	reqSenderID, _ := http.NewRequest("GET", "/users/getRecordByID?user_id="+senderID, nil)
+	reqReceiverID, _ := http.NewRequest("GET", "/users/getRecordByID?user_id="+receiverID, nil)
 
-	_, err = tx.Exec("UPDATE users SET balance = balance - ? WHERE id = ?", amount, senderID)
-	if err != nil {
-		tx.Rollback()
-		getResponseError(w, http.StatusInternalServerError, "Ошибка при обновлении баланса отправителя")
-		return
-	}
+	_, existSenderID := ckeckRecordByID(w, reqSenderID, "users")
+	_, existreceiverID := ckeckRecordByID(w, reqReceiverID, "users")
 
-	_, err = tx.Exec("UPDATE users SET balance = balance + ? WHERE id = ?", amount, receiverID)
-	if err != nil {
-		tx.Rollback()
-		getResponseError(w, http.StatusInternalServerError, "Ошибка при обновлении баланса получателя")
-		return
-	}
+	if existSenderID && existreceiverID {
+		tx, err := db.Begin()
+		if err != nil {
+			getResponseError(w, http.StatusInternalServerError, "Ошибка при запуске транзакции")
+			return
+		}
 
-	err = tx.Commit()
-	if err != nil {
-		getResponseError(w, http.StatusInternalServerError, "Ошибка записи транзакции")
-		return
-	}
+		_, err = tx.Exec("UPDATE users SET balance = balance - ? WHERE user_id = ?", amount, senderID)
+		if err != nil {
+			tx.Rollback()
+			getResponseError(w, http.StatusInternalServerError, "Ошибка при обновлении баланса отправителя")
+			return
+		}
 
-	w.WriteHeader(http.StatusOK)
-	fmt.Printf("Действие: транзакция на сумму %f рублей от %s к %s", amount, senderID, receiverID)
+		_, err = tx.Exec("UPDATE users SET balance = balance + ? WHERE user_id = ?", amount, receiverID)
+		if err != nil {
+			tx.Rollback()
+			getResponseError(w, http.StatusInternalServerError, "Ошибка при обновлении баланса получателя")
+			return
+		}
+
+		err = tx.Commit()
+		if err != nil {
+			getResponseError(w, http.StatusInternalServerError, "Ошибка записи транзакции")
+			return
+		}
+
+		fmt.Printf("Действие: транзакция на сумму %.2f рублей от пользователя с id = %s к пользователю с id = %s, Запрос: Успешный", amount, senderID, receiverID)
+	} else {
+		fmt.Printf("Действие: транзакция на сумму %.2f рублей от пользователя с id = %s к пользователю с id = %s, Запрос: Неудачный", amount, senderID, receiverID)
+	}
 }

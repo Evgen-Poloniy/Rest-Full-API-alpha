@@ -9,12 +9,6 @@ import (
 func dynamicHandler(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(r.URL.Path, "/")
 
-	if len(parts) == 2 && parts[1] == "checkConnection" {
-		checkConnectionHandler(w, r)
-		fmt.Printf("Действие: checkConnection")
-		return
-	}
-
 	if len(parts) < 3 {
 		getResponseError(w, http.StatusBadRequest, "Неверный запрос")
 		return
@@ -23,20 +17,28 @@ func dynamicHandler(w http.ResponseWriter, r *http.Request) {
 	table := parts[1]
 	action := parts[2]
 
+	var completed bool = false
+
 	switch action {
 	case "createRecord":
-		createRecord(w, r, table)
-	case "deleteRecordById":
-		deleteRecordById(w, r, table)
+		completed = createRecord(w, r, table)
+	case "deleteRecordByID":
+		completed = deleteRecordById(w, r, table)
 	case "getRecordByID":
-		getRecordByID(w, r, table)
+		completed = getRecordByID(w, r, table)
 	case "getAllRecords":
-		getAllRecords(w, r, table)
+		completed = getAllRecords(w, r, table)
 	case "getCountOfRecords":
-		getCountOfRecords(w, r, table)
+		completed = getCountOfRecords(w, table)
 	default:
 		getResponseError(w, http.StatusNotFound, "Неизвестное действие")
 	}
 
-	fmt.Printf("Таблица: %s, Действие: %s\n", table, action)
+	var status string
+	if completed {
+		status = "Успешный"
+	} else {
+		status = "Неудачный"
+	}
+	fmt.Printf("Таблица: %s, Действие: %s, Запрос: %s\n", table, action, status)
 }

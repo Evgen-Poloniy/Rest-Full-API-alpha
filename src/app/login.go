@@ -45,8 +45,12 @@ func changeIpConfig() {
 
 		defer file.Close()
 
-		ipConfig.Ip = inputedIp
-		ipConfig.Port = inputedPort
+		if inputedIp != "" {
+			ipConfig.Ip = inputedIp
+		}
+		if inputedPort != 0 {
+			ipConfig.Port = inputedPort
+		}
 
 		file.WriteString(ipConfig.Ip + "\n")
 		file.WriteString(strconv.Itoa(ipConfig.Port) + "\n")
