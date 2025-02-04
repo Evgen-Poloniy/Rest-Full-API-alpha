@@ -22,7 +22,6 @@ func main() {
 		http.HandleFunc("/users/getCountOfUsers", getCountOfUsers)
 	*/
 	http.HandleFunc("/", dynamicHandler)
-	http.HandleFunc("/users/makeTransaction", makeTransaction)
 	http.HandleFunc("/checkConnection", checkConnectionHandler)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

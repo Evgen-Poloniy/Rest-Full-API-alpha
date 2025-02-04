@@ -10,7 +10,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// Структура для хранения конфигурации БД
 type dbConfig struct {
 	User     string
 	Password string
@@ -19,7 +18,6 @@ type dbConfig struct {
 	Name     string
 }
 
-// Конфигурация БД
 var dbCfg = dbConfig{
 	User:     os.Getenv("DB_USER"),
 	Password: os.Getenv("DB_PASSWORD"),
@@ -28,20 +26,8 @@ var dbCfg = dbConfig{
 	Name:     os.Getenv("DB_NAME"),
 }
 
-// Вывод конфигурации БД
-/*
-func printDBConfig() {
-	fmt.Println("DB_USER:", dbCfg.User)
-	fmt.Println("DB_PASSWORD:", dbCfg.Password)
-	fmt.Println("DB_HOST:", dbCfg.Host)
-	fmt.Println("DB_PORT:", dbCfg.Port)
-	fmt.Println("DB_NAME:", dbCfg.Name)
-}
-*/
-
 var db *sql.DB
 
-// Инициализация подключения к БД
 func initDB() {
 	time.Sleep(10 * time.Second)
 
@@ -52,8 +38,6 @@ func initDB() {
 		dbCfg.Name,
 	)
 
-	//printDBConfig()
-
 	db, err = sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatal("Ошибка подключения к БД:", err)
@@ -63,5 +47,5 @@ func initDB() {
 		log.Fatal("БД недоступна:", err)
 		return
 	}
-	fmt.Println("Подключено к MySQL!")
+	log.Println("Подключено к MySQL!")
 }

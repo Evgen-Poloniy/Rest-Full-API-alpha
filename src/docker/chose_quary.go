@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -10,13 +10,13 @@ func dynamicHandler(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(r.URL.Path, "/")
 
 	if len(parts) < 3 {
+
 		getResponseError(w, http.StatusBadRequest, "Неверный запрос")
 		return
 	}
 
-	table := parts[1]
-	action := parts[2]
-
+	var table string = parts[1]
+	var action string = parts[2]
 	var completed bool = false
 
 	switch action {
@@ -30,6 +30,8 @@ func dynamicHandler(w http.ResponseWriter, r *http.Request) {
 		completed = getAllRecords(w, r, table)
 	case "getCountOfRecords":
 		completed = getCountOfRecords(w, table)
+	case "makeTransaction":
+		completed = makeTransaction(w, r)
 	default:
 		getResponseError(w, http.StatusNotFound, "Неизвестное действие")
 	}
@@ -40,5 +42,5 @@ func dynamicHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		status = "Неудачный"
 	}
-	fmt.Printf("Таблица: %s, Действие: %s, Запрос: %s\n", table, action, status)
+	log.Println("Таблица: %s, Действие: %s, Запрос: %s\n", table, action, status)
 }
