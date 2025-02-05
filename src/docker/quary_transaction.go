@@ -42,13 +42,25 @@ func makeTransaction(w http.ResponseWriter, r *http.Request, table string) bool 
 		return false
 	}
 
+	var valueOfBalance float64 = 0
+	errQuary := db.QueryRow("SELECT balance FROM "+table+" WHERE user_id = ?", senderID).Scan(&valueOfBalance)
+	if errQuary != nil {
+		getResponseError(w, http.StatusInternalServerError, "Ошибка при запросе баланса пользователя")
+		return false
+	}
+
+	if valueOfBalance < amount {
+		getResponseError(w, http.StatusBadRequest, "Не хратает средств на счете")
+		return false
+	}
+
 	tx, err := db.Begin()
 	if err != nil {
 		getResponseError(w, http.StatusInternalServerError, "Ошибка при запуске транзакции")
 		return false
 	}
 
-	_, err = tx.Exec("UPDATE "+table+" SET balance = balance - ?, transaction_time = CURRENT_TIMESTAMP WHERE user_id = ? AND balance >= ?", amount, senderID, amount)
+	_, err = tx.Exec("UPDATE "+table+" SET balance = balance - ?, transaction_time = CURRENT_TIMESTAMP WHERE user_id = ?", amount, senderID)
 	if err != nil {
 		tx.Rollback()
 		getResponseError(w, http.StatusInternalServerError, "Ошибка при обновлении баланса отправителя")

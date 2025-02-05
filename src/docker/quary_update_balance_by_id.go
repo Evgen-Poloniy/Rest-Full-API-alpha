@@ -33,6 +33,18 @@ func updateBalanceByID(w http.ResponseWriter, r *http.Request, table string) boo
 		return false
 	}
 
+	var valueOfBalance float64 = 0
+	errQuary := db.QueryRow("SELECT balance FROM "+table+" WHERE user_id = ?", userIDStr).Scan(&valueOfBalance)
+	if errQuary != nil {
+		getResponseError(w, http.StatusInternalServerError, "Ошибка при запросе баланса пользователя")
+		return false
+	}
+
+	if valueOfBalance < updateBalance {
+		getResponseError(w, http.StatusBadRequest, "Не хратает средств на счете")
+		return false
+	}
+
 	tx, err := db.Begin()
 	if err != nil {
 		getResponseError(w, http.StatusInternalServerError, "Ошибка при запуске транзакции")
@@ -41,9 +53,9 @@ func updateBalanceByID(w http.ResponseWriter, r *http.Request, table string) boo
 
 	var typeOperation string
 
+	_, err = tx.Exec("UPDATE users SET balance = balance + ?, transaction_time = CURRENT_TIMESTAMP WHERE user_id = ?", updateBalance, userIDStr)
 	if updateBalance > 0 {
 		typeOperation = "deposit"
-		_, err = tx.Exec("UPDATE users SET balance = balance + ?, transaction_time = CURRENT_TIMESTAMP WHERE user_id = ?", updateBalance, userIDStr)
 		if err != nil {
 			tx.Rollback()
 			getResponseError(w, http.StatusInternalServerError, "Ошибка при обновлении баланса отправителя")
@@ -51,7 +63,6 @@ func updateBalanceByID(w http.ResponseWriter, r *http.Request, table string) boo
 		}
 	} else {
 		typeOperation = "withdraw"
-		_, err = tx.Exec("UPDATE users SET balance = balance + ?, transaction_time = CURRENT_TIMESTAMP WHERE user_id = ? AND balance >= ?", updateBalance, userIDStr, updateBalance)
 		if err != nil {
 			tx.Rollback()
 			getResponseError(w, http.StatusInternalServerError, "Ошибка при обновлении баланса отправителя")
@@ -74,5 +85,4 @@ func updateBalanceByID(w http.ResponseWriter, r *http.Request, table string) boo
 	createRecordOfTransaction(w, "transactions", &transactionSenderID)
 
 	return true
-
 }
