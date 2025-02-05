@@ -39,25 +39,30 @@ func updateBalanceByID(w http.ResponseWriter, r *http.Request, table string) boo
 		return false
 	}
 
-	_, err = tx.Exec("UPDATE users SET balance = balance + ?, transaction_time = CURRENT_TIMESTAMP WHERE user_id = ? AND balance >= ?", updateBalance, userIDStr, updateBalance)
-	if err != nil {
-		tx.Rollback()
-		getResponseError(w, http.StatusInternalServerError, "Ошибка при обновлении баланса отправителя")
-		return false
+	var typeOperation string
+
+	if updateBalance > 0 {
+		typeOperation = "deposit"
+		_, err = tx.Exec("UPDATE users SET balance = balance + ?, transaction_time = CURRENT_TIMESTAMP WHERE user_id = ?", updateBalance, userIDStr)
+		if err != nil {
+			tx.Rollback()
+			getResponseError(w, http.StatusInternalServerError, "Ошибка при обновлении баланса отправителя")
+			return false
+		}
+	} else {
+		typeOperation = "withdraw"
+		_, err = tx.Exec("UPDATE users SET balance = balance - ?, transaction_time = CURRENT_TIMESTAMP WHERE user_id = ? AND balance >= ?", updateBalance, userIDStr, updateBalance)
+		if err != nil {
+			tx.Rollback()
+			getResponseError(w, http.StatusInternalServerError, "Ошибка при обновлении баланса отправителя")
+			return false
+		}
 	}
 
 	err = tx.Commit()
 	if err != nil {
 		getResponseError(w, http.StatusInternalServerError, "Ошибка записи транзакции")
 		return false
-	}
-
-	var typeOperation string
-
-	if updateBalance > 0 {
-		typeOperation = "deposit"
-	} else {
-		typeOperation = "withdraw"
 	}
 
 	transactionSenderID := TransactionParameters{
