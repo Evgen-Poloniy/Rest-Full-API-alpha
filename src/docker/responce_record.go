@@ -7,7 +7,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// Структура для хранения записи
 type RecordsOfUsers struct {
 	ID      int     `json:"user_id"`
 	Balance float64 `json:"balance"`
@@ -22,9 +21,20 @@ type RecordsOfTransactions struct {
 	Time          string  `json:"transaction_time"`
 }
 
+type RecordsOfErrors struct {
+	Error   int    `json:"error"`
+	Message string `json:"message"`
+}
+
+type RecordOfAgregation struct {
+	Agregation int `json:"count"`
+}
+
 type Responses struct {
 	Users        []RecordsOfUsers        `json:"users"`
 	Transactions []RecordsOfTransactions `json:"transactions"`
+	Errors       []RecordsOfErrors       `json:"errors"`
+	Agregation   []RecordOfAgregation    `json:"agregation"`
 }
 
 func getResponseRecord(w http.ResponseWriter, responce *Responses, tableName string) {
@@ -69,6 +79,22 @@ func getResponseRecord(w http.ResponseWriter, responce *Responses, tableName str
 		getResponseError(w, http.StatusInternalServerError, "Ошибка формирования JSON")
 		return
 	}
+
+	w.Write(append(responseJSON, '\n'))
+}
+
+func getResponseError(w http.ResponseWriter, statusCode int, errMsg string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+
+	response := map[string]RecordsOfErrors{
+		"errors": {
+			Error:   statusCode,
+			Message: errMsg,
+		},
+	}
+
+	responseJSON, _ := json.MarshalIndent(response, "", "  ")
 
 	w.Write(append(responseJSON, '\n'))
 }

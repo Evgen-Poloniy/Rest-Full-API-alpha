@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"math"
 	"net/http"
 	"strconv"
 )
@@ -35,13 +37,14 @@ func updateBalanceByID(w http.ResponseWriter, r *http.Request, table string) boo
 
 	var valueOfBalance float64 = 0
 	errQuary := db.QueryRow("SELECT balance FROM "+table+" WHERE user_id = ?", userIDStr).Scan(&valueOfBalance)
+	fmt.Println(valueOfBalance)
 	if errQuary != nil {
 		getResponseError(w, http.StatusInternalServerError, "Ошибка при запросе баланса пользователя")
 		return false
 	}
 
 	if updateBalance < 0 {
-		if valueOfBalance < updateBalance {
+		if valueOfBalance < math.Abs(updateBalance) {
 			getResponseError(w, http.StatusBadRequest, "Не хватает средств на счете")
 			return false
 		}

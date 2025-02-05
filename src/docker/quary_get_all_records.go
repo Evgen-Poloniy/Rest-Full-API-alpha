@@ -10,10 +10,18 @@ func getAllRecords(w http.ResponseWriter, r *http.Request, table string) bool {
 	var rows *sql.Rows
 	var err error
 
-	if limitStr != "" {
-		rows, err = db.Query("SELECT * FROM "+table+" ORDER BY user_id LIMIT ?", limitStr)
+	if table == "users" {
+		if limitStr != "" {
+			rows, err = db.Query("SELECT * FROM "+table+" ORDER BY user_id LIMIT ?", limitStr)
+		} else {
+			rows, err = db.Query("SELECT * FROM " + table + " ORDER BY user_id")
+		}
 	} else {
-		rows, err = db.Query("SELECT * FROM " + table + " ORDER BY user_id")
+		if limitStr != "" {
+			rows, err = db.Query("SELECT * FROM "+table+" ORDER BY transaction_id LIMIT ?", limitStr)
+		} else {
+			rows, err = db.Query("SELECT * FROM " + table + " ORDER BY transaction_id")
+		}
 	}
 
 	if err != nil {

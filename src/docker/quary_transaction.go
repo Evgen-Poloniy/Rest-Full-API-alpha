@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -44,6 +45,7 @@ func makeTransaction(w http.ResponseWriter, r *http.Request, table string) bool 
 
 	var valueOfBalance float64 = 0
 	errQuary := db.QueryRow("SELECT balance FROM "+table+" WHERE user_id = ?", senderID).Scan(&valueOfBalance)
+	fmt.Println(valueOfBalance)
 	if errQuary != nil {
 		getResponseError(w, http.StatusInternalServerError, "Ошибка при запросе баланса пользователя")
 		return false

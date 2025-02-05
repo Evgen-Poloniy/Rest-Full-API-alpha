@@ -4,32 +4,56 @@ import (
 	"net/http"
 )
 
-func ckeckRecordOfUsersByID(w http.ResponseWriter, r *http.Request, table string) (RecordsOfUsers, bool) {
-	userID := r.URL.Query().Get("user_id")
-	if userID == "" {
-		getResponseError(w, http.StatusBadRequest, "Параметр user_id обязателен")
-		return RecordsOfUsers{}, false
-	}
+func ckeckRecordOfUsersByID(w http.ResponseWriter, r *http.Request, table string) (interface{}, bool) {
+	if table == "users" {
+		userID := r.URL.Query().Get("user_id")
+		if userID == "" {
+			getResponseError(w, http.StatusBadRequest, "Параметр user_id обязателен")
+			return RecordsOfUsers{}, false
+		}
 
-	var record []RecordsOfUsers = make([]RecordsOfUsers, 1)
-	err := db.QueryRow("SELECT * FROM "+table+" WHERE user_id = ?", userID).Scan(&record[0].ID, &record[0].Balance, &record[0].Time)
+		var record []RecordsOfUsers = make([]RecordsOfUsers, 1)
+		err := db.QueryRow("SELECT * FROM "+table+" WHERE user_id = ?", userID).Scan(&record[0].ID, &record[0].Balance, &record[0].Time)
 
-	if err != nil {
-		return RecordsOfUsers{}, false
+		if err != nil {
+			return RecordsOfUsers{}, false
+		}
+		return record[0], true
+	} else {
+		userID := r.URL.Query().Get("transaction_id")
+		if userID == "" {
+			getResponseError(w, http.StatusBadRequest, "Параметр transaction_id обязателен")
+			return nil, false
+		}
+
+		var record []RecordsOfTransactions = make([]RecordsOfTransactions, 1)
+		err := db.QueryRow("SELECT * FROM "+table+" WHERE transaction_id = ?", userID).Scan(&record[0].TransactionID, &record[0].UserID, &record[0].Type, &record[0].Amount, &record[0].Time)
+
+		if err != nil {
+			return RecordsOfTransactions{}, false
+		}
+		return record[0], true
 	}
-	return record[0], true
 }
 
 func getRecordByID(w http.ResponseWriter, r *http.Request, table string) bool {
 	record, exist := ckeckRecordOfUsersByID(w, r, table)
 
 	if !exist {
+		if table == "users" {
+			getResponseError(w, http.StatusNotFound, "Пользователь не найден")
+		} else {
+			getResponseError(w, http.StatusNotFound, "Транзакция не найдена")
+		}
 		return false
 	}
 
 	var responce Responses
-	responce.Users = []RecordsOfUsers{record}
-
+	if table == "users" {
+		responce.Users = []RecordsOfUsers{record.(RecordsOfUsers)}
+	} else {
+		responce.Transactions = []RecordsOfTransactions{record.(RecordsOfTransactions)}
+	}
 	getResponseRecord(w, &responce, table)
 	return true
 }

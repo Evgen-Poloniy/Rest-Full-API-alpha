@@ -5,14 +5,10 @@ import (
 	"net/http"
 )
 
-type Count struct {
-	Out int `json:"count"`
-}
-
-func getResponceCount(w http.ResponseWriter, count Count) {
+func getResponceCount(w http.ResponseWriter, count RecordOfAgregation) {
 	w.Header().Set("Content-Type", "application/json")
 
-	response := map[string]Count{
+	response := map[string]RecordOfAgregation{
 		"agregation": count,
 	}
 
@@ -34,8 +30,8 @@ func getCountOfRecords(w http.ResponseWriter, table string) bool {
 		return false
 	}
 
-	response := Count{
-		Out: count,
+	response := RecordOfAgregation{
+		Agregation: count,
 	}
 
 	getResponceCount(w, response)
