@@ -40,9 +40,11 @@ func updateBalanceByID(w http.ResponseWriter, r *http.Request, table string) boo
 		return false
 	}
 
-	if valueOfBalance < updateBalance {
-		getResponseError(w, http.StatusBadRequest, "Не хратает средств на счете")
-		return false
+	if updateBalance < 0 {
+		if valueOfBalance < updateBalance {
+			getResponseError(w, http.StatusBadRequest, "Не хватает средств на счете")
+			return false
+		}
 	}
 
 	tx, err := db.Begin()
