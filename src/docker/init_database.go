@@ -47,5 +47,5 @@ func initDB() {
 		log.Fatal("БД недоступна:", err)
 		return
 	}
-	log.Println("Подключено к MySQL!")
+	log.Printf("Подключено к MySQL!")
 }

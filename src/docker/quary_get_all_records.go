@@ -22,10 +22,10 @@ func getAllRecords(w http.ResponseWriter, r *http.Request, table string) bool {
 	}
 	defer rows.Close()
 
-	var records []Record
+	var records []RecordsOfUsers
 
 	for rows.Next() {
-		var record Record
+		var record RecordsOfUsers
 		if err := rows.Scan(&record.ID, &record.Balance, &record.Time); err != nil {
 			getResponseError(w, http.StatusInternalServerError, "Ошибка чтения данных")
 			return false
@@ -38,6 +38,10 @@ func getAllRecords(w http.ResponseWriter, r *http.Request, table string) bool {
 		return false
 	}
 
-	getResponseRecord(w, records, table)
+	var responce Responses
+	responce.Users = records
+
+	getResponseRecord(w, &responce, table)
+
 	return true
 }

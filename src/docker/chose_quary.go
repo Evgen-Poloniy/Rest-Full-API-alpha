@@ -20,8 +20,8 @@ func dynamicHandler(w http.ResponseWriter, r *http.Request) {
 	var completed bool = false
 
 	switch action {
-	case "createRecord":
-		completed = createRecord(w, r, table)
+	case "createRecordOfUser":
+		completed = createRecordOfUsers(w, r, table)
 	case "deleteRecordByID":
 		completed = deleteRecordById(w, r, table)
 	case "getRecordByID":
@@ -31,7 +31,9 @@ func dynamicHandler(w http.ResponseWriter, r *http.Request) {
 	case "getCountOfRecords":
 		completed = getCountOfRecords(w, table)
 	case "makeTransaction":
-		completed = makeTransaction(w, r)
+		completed = makeTransaction(w, r, table)
+	case "updateBalanceByID":
+		completed = updateBalanceByID(w, r, table)
 	default:
 		getResponseError(w, http.StatusNotFound, "Неизвестное действие")
 	}
@@ -42,5 +44,5 @@ func dynamicHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		status = "Неудачный"
 	}
-	log.Println("Таблица: %s, Действие: %s, Запрос: %s\n", table, action, status)
+	log.Printf("Таблица: %s, Действие: %s, Запрос: %s\n", table, action, status)
 }

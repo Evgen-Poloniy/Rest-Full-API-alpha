@@ -30,7 +30,7 @@ func input() {
 		if ipConfig.Status {
 			if chose == "1" {
 				var balance string = inputParametrs("Введите баланс:")
-				makeRequest("POST", ipConfig.Ip, ipConfig.Port, "/users/createRecord?balance="+balance)
+				makeRequest("POST", ipConfig.Ip, ipConfig.Port, "/users/createRecordOfUser?balance="+balance)
 				waitInput()
 			} else if chose == "2" {
 				var id string = inputParametrs("Введите id пользователя:")
@@ -52,6 +52,11 @@ func input() {
 				var idReceiver string = inputParametrs("Введите id получателя:")
 				var amount string = inputParametrs("Введите сумму транзакции:")
 				makeRequest("POST", ipConfig.Ip, ipConfig.Port, "/users/makeTransaction?sender_id="+idSender+"&receiver_id="+idReceiver+"&amount="+amount)
+				waitInput()
+			} else if chose == "8" {
+				var id string = inputParametrs("Введите id пользователя:")
+				var updateBalance string = inputParametrs("Введите сумму начисления(>0)/списания(<0):")
+				makeRequest("POST", ipConfig.Ip, ipConfig.Port, "/users/updateBalanceByID?user_id="+id+"&update_balance="+updateBalance)
 				waitInput()
 			} else if chose == "9" {
 				checkConnection(&ipConfig)

@@ -8,5 +8,5 @@ import (
 func checkConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	ip := r.RemoteAddr
-	log.Println("Действие: checkConnection c ip: %s", ip)
+	log.Printf("Действие: checkConnection c ip: %s", ip)
 }

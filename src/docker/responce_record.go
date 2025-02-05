@@ -8,45 +8,59 @@ import (
 )
 
 // Структура для хранения записи
-type Record struct {
-	ID      int     `json:"id"`
+type RecordsOfUsers struct {
+	ID      int     `json:"user_id"`
 	Balance float64 `json:"balance"`
-	Time    string  `json:"last_time"`
+	Time    string  `json:"transaction_time"`
 }
 
-/*
-func getResponseRecord(w http.ResponseWriter, record Record, tableName string) {
+type RecordsOfTransactions struct {
+	TransactionID int     `json:"transaction_id"`
+	UserID        int     `json:"user_id"`
+	Type          string  `json:"type_transaction"`
+	Amount        float64 `json:"balance"`
+	Time          string  `json:"transaction_time"`
+}
+
+type Responses struct {
+	Users        []RecordsOfUsers        `json:"users"`
+	Transactions []RecordsOfTransactions `json:"transactions"`
+}
+
+func getResponseRecord(w http.ResponseWriter, responce *Responses, tableName string) {
 	w.Header().Set("Content-Type", "application/json")
 
-	response := map[string]Record{
-		tableName: record,
-	}
-
-	responseJSON, err := json.MarshalIndent(response, "", "  ")
-	if err != nil {
-		http.Error(w, "Ошибка формирования JSON", http.StatusInternalServerError)
+	var records interface{}
+	if tableName == "users" {
+		records = responce.Users
+	} else if tableName == "transactions" {
+		records = responce.Transactions
+	} else {
+		getResponseError(w, http.StatusInternalServerError, "Ошибка при создании записи")
 		return
 	}
 
-	w.Write(append(responseJSON, '\n'))
-}
-*/
-
-type Responses struct {
-	Data []Record `json:"data"`
-}
-
-func getResponseRecord(w http.ResponseWriter, records []Record, tableName string) {
-	w.Header().Set("Content-Type", "application/json")
-
 	var response interface{}
-	if len(records) == 1 {
-		response = map[string]Record{
-			tableName: records[0],
+	switch rec := records.(type) {
+	case []RecordsOfUsers:
+		if len(rec) == 1 {
+			response = map[string]RecordsOfUsers{
+				tableName: rec[0],
+			}
+		} else {
+			response = map[string][]RecordsOfUsers{
+				tableName: rec,
+			}
 		}
-	} else {
-		response = map[string][]Record{
-			tableName: records,
+	case []RecordsOfTransactions:
+		if len(rec) == 1 {
+			response = map[string]RecordsOfTransactions{
+				tableName: rec[0],
+			}
+		} else {
+			response = map[string][]RecordsOfTransactions{
+				tableName: rec,
+			}
 		}
 	}
 
