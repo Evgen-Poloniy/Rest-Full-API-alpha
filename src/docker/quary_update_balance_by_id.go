@@ -51,7 +51,7 @@ func updateBalanceByID(w http.ResponseWriter, r *http.Request, table string) boo
 		}
 	} else {
 		typeOperation = "withdraw"
-		_, err = tx.Exec("UPDATE users SET balance = balance - ?, transaction_time = CURRENT_TIMESTAMP WHERE user_id = ? AND balance >= ?", updateBalance, userIDStr, updateBalance)
+		_, err = tx.Exec("UPDATE users SET balance = balance + ?, transaction_time = CURRENT_TIMESTAMP WHERE user_id = ? AND balance >= ?", updateBalance, userIDStr, updateBalance)
 		if err != nil {
 			tx.Rollback()
 			getResponseError(w, http.StatusInternalServerError, "Ошибка при обновлении баланса отправителя")
