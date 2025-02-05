@@ -32,13 +32,13 @@ func makeTransaction(w http.ResponseWriter, r *http.Request, table string) bool 
 	_, existSenderID := ckeckRecordOfUsersByID(w, reqSenderID, "users")
 	_, existReceiverID := ckeckRecordOfUsersByID(w, reqReceiverID, "users")
 
-	if !existSenderID {
-		getResponseError(w, http.StatusNotFound, "Отправитель не найден")
-	}
-	if !existReceiverID {
-		getResponseError(w, http.StatusNotFound, "Получатель не найден")
-	}
-	if !existSenderID || !existSenderID {
+	if !existSenderID || !existReceiverID {
+		if !existSenderID {
+			getResponseError(w, http.StatusNotFound, "Отправитель не найден")
+		}
+		if !existReceiverID {
+			getResponseError(w, http.StatusNotFound, "Получатель не найден")
+		}
 		return false
 	}
 
