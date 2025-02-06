@@ -7,24 +7,24 @@ import (
 	"strconv"
 )
 
-func updateBalanceByID(w http.ResponseWriter, r *http.Request, table string) bool {
+func updateBalanceByID(w http.ResponseWriter, r *http.Request, table string) (bool, bool) {
 	userIDStr := r.URL.Query().Get("user_id")
 	updateBalanceStr := r.URL.Query().Get("update_balance")
 
 	if userIDStr == "" {
 		getResponseError(w, http.StatusBadRequest, "Параметр user_id обязателен")
-		return false
+		return false, false
 	}
 
 	if updateBalanceStr == "" {
 		getResponseError(w, http.StatusBadRequest, "Параметр update_balance обязателен")
-		return false
+		return false, false
 	}
 
 	updateBalance, err := strconv.ParseFloat(updateBalanceStr, 64)
 	if err != nil || updateBalance == 0 {
 		getResponseError(w, http.StatusBadRequest, "Некорретная сумма транзакции")
-		return false
+		return false, false
 	}
 
 	reqID, _ := http.NewRequest("GET", "/users/getRecordByID?user_id="+userIDStr, nil)
@@ -32,7 +32,7 @@ func updateBalanceByID(w http.ResponseWriter, r *http.Request, table string) boo
 
 	if !exist {
 		getResponseError(w, http.StatusNotFound, "Пользователь не найден")
-		return false
+		return false, false
 	}
 
 	var valueOfBalance float64 = 0
@@ -40,20 +40,20 @@ func updateBalanceByID(w http.ResponseWriter, r *http.Request, table string) boo
 	fmt.Println(valueOfBalance)
 	if errQuary != nil {
 		getResponseError(w, http.StatusInternalServerError, "Ошибка при запросе баланса пользователя")
-		return false
+		return false, false
 	}
 
 	if updateBalance < 0 {
 		if valueOfBalance < math.Abs(updateBalance) {
 			getResponseError(w, http.StatusBadRequest, "Не хватает средств на счете")
-			return false
+			return false, false
 		}
 	}
 
 	tx, err := db.Begin()
 	if err != nil {
 		getResponseError(w, http.StatusInternalServerError, "Ошибка при запуске транзакции")
-		return false
+		return false, false
 	}
 
 	var typeOperation string
@@ -64,21 +64,21 @@ func updateBalanceByID(w http.ResponseWriter, r *http.Request, table string) boo
 		if err != nil {
 			tx.Rollback()
 			getResponseError(w, http.StatusInternalServerError, "Ошибка при обновлении баланса отправителя")
-			return false
+			return false, false
 		}
 	} else {
 		typeOperation = "withdraw"
 		if err != nil {
 			tx.Rollback()
 			getResponseError(w, http.StatusInternalServerError, "Ошибка при обновлении баланса отправителя")
-			return false
+			return false, false
 		}
 	}
 
 	err = tx.Commit()
 	if err != nil {
 		getResponseError(w, http.StatusInternalServerError, "Ошибка записи транзакции")
-		return false
+		return false, false
 	}
 
 	transactionSenderID := TransactionParameters{
@@ -87,7 +87,5 @@ func updateBalanceByID(w http.ResponseWriter, r *http.Request, table string) boo
 		Amount: updateBalanceStr,
 	}
 
-	createRecordOfTransaction(w, "transactions", &transactionSenderID)
-
-	return true
+	return true, createRecordOfTransaction(w, "transactions", &transactionSenderID)
 }

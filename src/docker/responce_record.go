@@ -37,7 +37,7 @@ type Responses struct {
 	Agregation   []RecordOfAgregation    `json:"agregation"`
 }
 
-func getResponseRecord(w http.ResponseWriter, responce *Responses, tableName string) {
+func getResponseRecord(w http.ResponseWriter, responce *Responses, tableName string) bool {
 	w.Header().Set("Content-Type", "application/json")
 
 	var records interface{}
@@ -47,7 +47,7 @@ func getResponseRecord(w http.ResponseWriter, responce *Responses, tableName str
 		records = responce.Transactions
 	} else {
 		getResponseError(w, http.StatusInternalServerError, "Ошибка при создании записи")
-		return
+		return false
 	}
 
 	var response interface{}
@@ -77,10 +77,11 @@ func getResponseRecord(w http.ResponseWriter, responce *Responses, tableName str
 	responseJSON, err := json.MarshalIndent(response, "", "  ")
 	if err != nil {
 		getResponseError(w, http.StatusInternalServerError, "Ошибка формирования JSON")
-		return
+		return false
 	}
 
 	w.Write(append(responseJSON, '\n'))
+	return true
 }
 
 func getResponseError(w http.ResponseWriter, statusCode int, errMsg string) {

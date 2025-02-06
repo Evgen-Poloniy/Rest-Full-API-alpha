@@ -15,34 +15,46 @@ func dynamicHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var table string = parts[1]
+	var mainTable string = parts[1]
+	var additionalTable string = ""
 	var action string = parts[2]
-	var completed bool = false
+	var statusMainQuary bool = false
+	var statusAdditionalQuary bool = false
+	var additionalAction string = ""
 
 	switch action {
 	case "createRecordOfUser":
-		completed = createRecordOfUsers(w, r, table)
+		statusMainQuary, statusAdditionalQuary = createRecordOfUsers(w, r, mainTable)
+		additionalTable = "users"
+		additionalAction = "getRecordByID"
 	case "deleteRecordByID":
-		completed = deleteRecordById(w, r, table)
+		statusMainQuary = deleteRecordById(w, r, mainTable)
 	case "getRecordByID":
-		completed = getRecordByID(w, r, table)
+		statusMainQuary = getRecordByID(w, r, mainTable)
 	case "getAllRecords":
-		completed = getAllRecords(w, r, table)
+		statusMainQuary = getAllRecords(w, r, mainTable)
 	case "getCountOfRecords":
-		completed = getCountOfRecords(w, table)
+		statusMainQuary = getCountOfRecords(w, mainTable)
 	case "makeTransaction":
-		completed = makeTransaction(w, r, table)
+		statusMainQuary, statusAdditionalQuary = makeTransaction(w, r, mainTable)
+		additionalTable = "transactions"
+		additionalAction = "getRecordByID"
 	case "updateBalanceByID":
-		completed = updateBalanceByID(w, r, table)
+		statusMainQuary, statusAdditionalQuary = updateBalanceByID(w, r, mainTable)
+		additionalTable = "transactions"
+		additionalAction = "getRecordByID"
 	default:
 		getResponseError(w, http.StatusNotFound, "Неизвестное действие")
 	}
 
 	var status string
-	if completed {
+	if statusMainQuary {
 		status = "Успешный"
+		if statusAdditionalQuary {
+			defer log.Printf("Таблица: %s, Действие: %s, Запрос: %s\n", additionalTable, additionalAction, statusAdditionalQuary)
+		}
 	} else {
 		status = "Неудачный"
 	}
-	log.Printf("Таблица: %s, Действие: %s, Запрос: %s\n", table, action, status)
+	log.Printf("Таблица: %s, Действие: %s, Запрос: %s\n", mainTable, action, status)
 }

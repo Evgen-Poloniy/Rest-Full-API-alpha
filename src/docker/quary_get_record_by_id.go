@@ -54,6 +54,6 @@ func getRecordByID(w http.ResponseWriter, r *http.Request, table string) bool {
 	} else {
 		responce.Transactions = []RecordsOfTransactions{record.(RecordsOfTransactions)}
 	}
-	getResponseRecord(w, &responce, table)
-	return true
+
+	return getResponseRecord(w, &responce, table)
 }

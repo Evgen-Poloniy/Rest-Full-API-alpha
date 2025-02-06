@@ -30,21 +30,21 @@ func createRecordOfTransaction(w http.ResponseWriter, table string, transactionP
 }
 */
 
-func createRecordOfTransaction(w http.ResponseWriter, table string, transactionParameters *TransactionParameters) {
+func createRecordOfTransaction(w http.ResponseWriter, table string, transactionParameters *TransactionParameters) bool {
 	result, err := db.Exec("INSERT INTO "+table+" (user_id, type_transaction, amount, transaction_time) VALUES (?, ?, ?, CURRENT_TIMESTAMP)",
 		transactionParameters.ID, transactionParameters.Type, transactionParameters.Amount)
 
 	if err != nil {
 		log.Printf("Ошибка при создании записи в таблице %s: %v", table, err)
 		getResponseError(w, http.StatusInternalServerError, "Ошибка при создании записи о транзакции")
-		return
+		return false
 	}
 
 	transactionID, err := result.LastInsertId()
 	if err != nil {
 		log.Printf("Ошибка получения ID последней транзакции: %v", err)
 		getResponseError(w, http.StatusInternalServerError, "Ошибка при получении ID транзакции")
-		return
+		return false
 	}
 
 	var record RecordsOfTransactions
@@ -54,12 +54,12 @@ func createRecordOfTransaction(w http.ResponseWriter, table string, transactionP
 	if err != nil {
 		log.Printf("Ошибка получения данных транзакции: %v", err)
 		getResponseError(w, http.StatusInternalServerError, "Ошибка при получении данных транзакции")
-		return
+		return false
 	}
 
 	var response Responses
 	response.Transactions = []RecordsOfTransactions{record}
 	getResponseRecord(w, &response, table)
 
-	log.Printf("Таблица: %s, Действие: createRecordOfTransaction, Запрос: Успешный", table)
+	return true
 }

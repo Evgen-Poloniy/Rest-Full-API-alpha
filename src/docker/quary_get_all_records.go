@@ -67,7 +67,6 @@ func getAllRecords(w http.ResponseWriter, r *http.Request, table string) bool {
 
 		responce.Transactions = records
 	}
-	getResponseRecord(w, &responce, table)
 
-	return true
+	return getResponseRecord(w, &responce, table)
 }
