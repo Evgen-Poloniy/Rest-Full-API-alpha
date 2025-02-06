@@ -29,6 +29,7 @@ var dbCfg = dbConfig{
 var db *sql.DB
 
 func initDB() {
+
 	time.Sleep(10 * time.Second)
 
 	var err error
@@ -47,5 +48,6 @@ func initDB() {
 		log.Fatal("БД недоступна:", err)
 		return
 	}
+
 	log.Printf("Подключено к MySQL!")
 }

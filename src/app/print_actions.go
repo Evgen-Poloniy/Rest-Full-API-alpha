@@ -28,6 +28,8 @@ func printActions() {
 		fmt.Println("6. Сделать транзакцию")
 		fmt.Println("7. Обновить баланс")
 		fmt.Println("")
+		fmt.Println("o. Открыть базу данных")
+		fmt.Println("p. Закрыть базу данных")
 	}
 	fmt.Println("c. Проверить соединение")
 	fmt.Println("r. Изменить параметры сети")

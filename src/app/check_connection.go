@@ -7,16 +7,16 @@ import (
 	"strconv"
 )
 
-func checkConnection(ipConfig *IpConfig) {
+func checkConnection() bool {
 	var client = &http.Client{}
 	resp, err := client.Get("http://" + ipConfig.Ip + ":" + strconv.Itoa(ipConfig.Port) + "/checkConnection")
 	if err != nil {
 		ipConfig.Status = false
 		log.Println(err)
-		return
+		return false
 	}
 	defer resp.Body.Close()
-	ipConfig.Status = resp.StatusCode == http.StatusOK
+	return resp.StatusCode == http.StatusOK
 }
 
 func PrintMessageAboutStatusConnection() {

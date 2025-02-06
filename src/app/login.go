@@ -77,5 +77,5 @@ func logIn() {
 	} else {
 		changeIpConfig()
 	}
-	checkConnection(&ipConfig)
+	ipConfig.Status = checkConnection()
 }

@@ -101,12 +101,21 @@ func input() {
 				var updateBalance string = inputParametrs("Введите сумму начисления(>0)/списания(<0):")
 				makeRequest("POST", ipConfig.Ip, ipConfig.Port, "/users/updateBalanceByID?user_id="+id+"&update_balance="+updateBalance)
 				waitInput()
+			case "o":
+				var password string = inputParametrs("Введите пароль от базы данных:")
+				fmt.Println(password)
+				openOrCloseDB("openDB", password)
+				waitInput()
+			case "p":
+				var password string = inputParametrs("Введите пароль от базы данных:")
+				openOrCloseDB("closeDB", password)
+				waitInput()
 			case "c":
-				checkConnection(&ipConfig)
+				ipConfig.Status = checkConnection()
 				PrintMessageAboutStatusConnection()
 			case "r":
 				changeIpConfig()
-				checkConnection(&ipConfig)
+				ipConfig.Status = checkConnection()
 			case "q":
 				fmt.Println("Произведен выход...")
 				return
@@ -117,11 +126,11 @@ func input() {
 		} else {
 			switch chose {
 			case "c":
-				checkConnection(&ipConfig)
+				ipConfig.Status = checkConnection()
 				PrintMessageAboutStatusConnection()
 			case "r":
 				changeIpConfig()
-				checkConnection(&ipConfig)
+				ipConfig.Status = checkConnection()
 			case "q":
 				fmt.Println("Произведен выход...")
 				return

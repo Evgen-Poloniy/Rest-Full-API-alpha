@@ -51,7 +51,7 @@ func dynamicHandler(w http.ResponseWriter, r *http.Request) {
 	if statusMainQuary {
 		status = "Успешный"
 		if statusAdditionalQuary {
-			defer log.Printf("Таблица: %s, Действие: %s, Запрос: %s\n", additionalTable, additionalAction, statusAdditionalQuary)
+			defer log.Printf("Таблица: %s, Действие: %s, Запрос: %s\n", additionalTable, additionalAction, status)
 		}
 	} else {
 		status = "Неудачный"
