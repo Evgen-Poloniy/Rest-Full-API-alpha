@@ -30,25 +30,43 @@ func getAllRecords(w http.ResponseWriter, r *http.Request, table string) bool {
 	}
 	defer rows.Close()
 
-	var records []RecordsOfUsers
+	var responce Responses
+	if table == "users" {
+		var records []RecordsOfUsers
 
-	for rows.Next() {
-		var record RecordsOfUsers
-		if err := rows.Scan(&record.ID, &record.Balance, &record.Time); err != nil {
-			getResponseError(w, http.StatusInternalServerError, "Ошибка чтения данных")
+		for rows.Next() {
+			var record RecordsOfUsers
+			if err := rows.Scan(&record.ID, &record.Balance, &record.Time); err != nil {
+				getResponseError(w, http.StatusInternalServerError, "Ошибка чтения данных")
+				return false
+			}
+			records = append(records, record)
+		}
+
+		if len(records) == 0 {
+			getResponseError(w, http.StatusNotFound, "В таблице нет данных")
 			return false
 		}
-		records = append(records, record)
+
+		responce.Users = records
+	} else {
+		var records []RecordsOfTransactions
+		for rows.Next() {
+			var record RecordsOfTransactions
+			if err := rows.Scan(&record.TransactionID, &record.UserID, &record.Type, &record.Amount, &record.Time); err != nil {
+				getResponseError(w, http.StatusInternalServerError, "Ошибка чтения данных")
+				return false
+			}
+			records = append(records, record)
+		}
+
+		if len(records) == 0 {
+			getResponseError(w, http.StatusNotFound, "В таблице нет данных")
+			return false
+		}
+
+		responce.Transactions = records
 	}
-
-	if len(records) == 0 {
-		getResponseError(w, http.StatusNotFound, "В таблице нет данных")
-		return false
-	}
-
-	var responce Responses
-	responce.Users = records
-
 	getResponseRecord(w, &responce, table)
 
 	return true
