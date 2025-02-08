@@ -2,6 +2,8 @@ FROM golang:1.22.2 AS builder
 
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y ca-certificates
+
 COPY libs/docker ./
 RUN go mod download
 

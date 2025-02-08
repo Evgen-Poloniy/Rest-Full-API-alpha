@@ -2,22 +2,25 @@ package main
 
 import (
 	"encoding/json"
+	"math"
 	"net/http"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 type RecordsOfUsers struct {
-	ID      int     `json:"user_id"`
-	Balance float64 `json:"balance"`
-	Time    string  `json:"transaction_time"`
+	ID       int     `json:"user_id"`
+	Balance  float64 `json:"balance"`
+	Currency string  `json:"currency"`
+	Time     string  `json:"transaction_time"`
 }
 
 type RecordsOfTransactions struct {
 	TransactionID int     `json:"transaction_id"`
 	UserID        int     `json:"user_id"`
 	Type          string  `json:"type_transaction"`
-	Amount        float64 `json:"balance"`
+	Amount        float64 `json:"amount"`
+	Currency      string  `json:"currency"`
 	Time          string  `json:"transaction_time"`
 }
 
@@ -37,13 +40,21 @@ type Responses struct {
 	Agregation   []RecordOfAgregation    `json:"agregation"`
 }
 
-func getResponseRecord(w http.ResponseWriter, responce *Responses, tableName string) bool {
+func getResponseRecord(w http.ResponseWriter, responce *Responses, tableName string, currency string) bool {
 	w.Header().Set("Content-Type", "application/json")
 
 	var records interface{}
 	if tableName == "users" {
+		for i := range responce.Users {
+			responce.Users[i].Currency = currency
+			responce.Users[i].Balance = math.Round(responce.Users[i].Balance/currencySet[currency]*100) / 100
+		}
 		records = responce.Users
 	} else if tableName == "transactions" {
+		for i := range responce.Transactions {
+			responce.Transactions[i].Currency = currency
+			responce.Transactions[i].Amount = math.Round(responce.Transactions[i].Amount/currencySet[currency]*100) / 100
+		}
 		records = responce.Transactions
 	} else {
 		getResponseError(w, http.StatusInternalServerError, "Ошибка при создании записи")

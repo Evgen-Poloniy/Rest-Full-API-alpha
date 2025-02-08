@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type TransactionParameters struct {
@@ -11,28 +12,17 @@ type TransactionParameters struct {
 	Amount string
 }
 
-/*
-func createRecordOfTransaction(w http.ResponseWriter, table string, transactionParameters *TransactionParameters) {
-	var record []RecordsOfTransactions = make([]RecordsOfTransactions, 1)
-	err := db.QueryRow("INSERT INTO "+table+" (user_id, type_transaction, amount, transaction_time) VALUES (?, ?, ?, CURRENT_TIMESTAMP) RETURNING user_id, transaction_id, type_transaction, amount, transaction_time", transactionParameters.ID, transactionParameters.Type, transactionParameters.Amount)
+func createRecordOfTransaction(w http.ResponseWriter, table string, transactionParameters *TransactionParameters, currency *string) bool {
+	amount, err := strconv.ParseFloat(transactionParameters.Amount, 64)
 	if err != nil {
-		getResponseError(w, http.StatusInternalServerError, "Ошибка при создании записи о транзакции")
-		log.Printf("Таблица: %s, Действие: %s, Запрос: %s\n", table, "createRecordOfTransaction", "Неудачный")
-		return
+		getResponseError(w, http.StatusBadRequest, "Неверный формат суммы транзакции")
+		return false
 	}
 
-	var responce Responses
-	responce.Transactions = record
+	amount *= currencySet[*currency]
 
-	getResponseRecord(w, &responce, table)
-
-	log.Printf("Таблица: %s, Действие: %s, Запрос: %s\n", table, "createRecordOfTransaction", "Успешный")
-}
-*/
-
-func createRecordOfTransaction(w http.ResponseWriter, table string, transactionParameters *TransactionParameters) bool {
 	result, err := db.Exec("INSERT INTO "+table+" (user_id, type_transaction, amount, transaction_time) VALUES (?, ?, ?, CURRENT_TIMESTAMP)",
-		transactionParameters.ID, transactionParameters.Type, transactionParameters.Amount)
+		transactionParameters.ID, transactionParameters.Type, amount)
 
 	if err != nil {
 		log.Printf("Ошибка при создании записи в таблице %s: %v", table, err)
@@ -59,7 +49,7 @@ func createRecordOfTransaction(w http.ResponseWriter, table string, transactionP
 
 	var response Responses
 	response.Transactions = []RecordsOfTransactions{record}
-	getResponseRecord(w, &response, table)
+	getResponseRecord(w, &response, table, *currency)
 
 	return true
 }

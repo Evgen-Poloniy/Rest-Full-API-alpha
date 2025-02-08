@@ -10,6 +10,7 @@ import (
 func main() {
 	initDB()
 	defer db.Close()
+	currencySet = CreateSet()
 
 	http.HandleFunc("/", dynamicHandler)
 	http.HandleFunc("/checkConnection", checkConnectionHandler)

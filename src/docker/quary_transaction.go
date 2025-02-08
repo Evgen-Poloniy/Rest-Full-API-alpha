@@ -7,14 +7,10 @@ import (
 )
 
 func makeTransaction(w http.ResponseWriter, r *http.Request, table string) (bool, bool) {
-	senderID := r.URL.Query().Get("sender_id")
-	receiverID := r.URL.Query().Get("receiver_id")
-	amountStr := r.URL.Query().Get("amount")
-
-	if senderID == "" || receiverID == "" || amountStr == "" {
-		getResponseError(w, http.StatusBadRequest, "Пропущены параметры транзакции")
-		return false, false
-	}
+	var senderID string = r.URL.Query().Get("sender_id")
+	var receiverID string = r.URL.Query().Get("receiver_id")
+	var amountStr string = r.URL.Query().Get("amount")
+	var currency string = r.URL.Query().Get("currency")
 
 	if senderID == receiverID {
 		getResponseError(w, http.StatusBadRequest, "Указан один и тот же user_id")
@@ -24,6 +20,10 @@ func makeTransaction(w http.ResponseWriter, r *http.Request, table string) (bool
 	amount, err := strconv.ParseFloat(amountStr, 64)
 	if err != nil || amount <= 0 {
 		getResponseError(w, http.StatusBadRequest, "Некорретная сумма транзакции")
+		return false, false
+	}
+
+	if !updateExchangeRates(w, &amount, &currency) {
 		return false, false
 	}
 
@@ -88,7 +88,7 @@ func makeTransaction(w http.ResponseWriter, r *http.Request, table string) (bool
 		Amount: amountStr,
 	}
 
-	var statusSender bool = createRecordOfTransaction(w, "transactions", &transactionSenderID)
+	var statusSender bool = createRecordOfTransaction(w, "transactions", &transactionSenderID, &currency)
 
 	transactionReceiverID := TransactionParameters{
 		ID:     receiverID,
@@ -96,7 +96,7 @@ func makeTransaction(w http.ResponseWriter, r *http.Request, table string) (bool
 		Amount: amountStr,
 	}
 
-	var statusReceiver bool = createRecordOfTransaction(w, "transactions", &transactionReceiverID)
+	var statusReceiver bool = createRecordOfTransaction(w, "transactions", &transactionReceiverID, &currency)
 
 	return true, statusSender && statusReceiver
 }

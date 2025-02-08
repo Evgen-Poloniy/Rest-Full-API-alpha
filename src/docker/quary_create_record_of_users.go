@@ -6,7 +6,9 @@ import (
 )
 
 func createRecordOfUsers(w http.ResponseWriter, r *http.Request, table string) (bool, bool) {
-	balanceStr := r.URL.Query().Get("balance")
+	var balanceStr string = r.URL.Query().Get("balance")
+	var currency string = r.URL.Query().Get("currency")
+
 	if balanceStr == "" {
 		getResponseError(w, http.StatusBadRequest, "Не указан баланс")
 		return false, false
@@ -15,6 +17,10 @@ func createRecordOfUsers(w http.ResponseWriter, r *http.Request, table string) (
 	balance, err := strconv.ParseFloat(balanceStr, 64)
 	if err != nil {
 		getResponseError(w, http.StatusBadRequest, "Некорректный формат баланса")
+		return false, false
+	}
+
+	if !updateExchangeRates(w, &balance, &currency) {
 		return false, false
 	}
 
@@ -35,5 +41,5 @@ func createRecordOfUsers(w http.ResponseWriter, r *http.Request, table string) (
 	var responce Responses
 	responce.Users = record
 
-	return true, getResponseRecord(w, &responce, table)
+	return true, getResponseRecord(w, &responce, table, currency)
 }

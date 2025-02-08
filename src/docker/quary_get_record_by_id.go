@@ -6,7 +6,7 @@ import (
 
 func ckeckRecordOfUsersByID(w http.ResponseWriter, r *http.Request, table string) (interface{}, bool) {
 	if table == "users" {
-		userID := r.URL.Query().Get("user_id")
+		var userID string = r.URL.Query().Get("user_id")
 		if userID == "" {
 			getResponseError(w, http.StatusBadRequest, "Параметр user_id обязателен")
 			return RecordsOfUsers{}, false
@@ -20,7 +20,7 @@ func ckeckRecordOfUsersByID(w http.ResponseWriter, r *http.Request, table string
 		}
 		return record[0], true
 	} else {
-		userID := r.URL.Query().Get("transaction_id")
+		var userID string = r.URL.Query().Get("transaction_id")
 		if userID == "" {
 			getResponseError(w, http.StatusBadRequest, "Параметр transaction_id обязателен")
 			return nil, false
@@ -39,6 +39,13 @@ func ckeckRecordOfUsersByID(w http.ResponseWriter, r *http.Request, table string
 func getRecordByID(w http.ResponseWriter, r *http.Request, table string) bool {
 	record, exist := ckeckRecordOfUsersByID(w, r, table)
 
+	var currency string = r.URL.Query().Get("currency")
+
+	var balance float64 = 0
+	if !updateExchangeRates(w, &balance, &currency) {
+		return false
+	}
+
 	if !exist {
 		if table == "users" {
 			getResponseError(w, http.StatusNotFound, "Пользователь не найден")
@@ -55,5 +62,5 @@ func getRecordByID(w http.ResponseWriter, r *http.Request, table string) bool {
 		responce.Transactions = []RecordsOfTransactions{record.(RecordsOfTransactions)}
 	}
 
-	return getResponseRecord(w, &responce, table)
+	return getResponseRecord(w, &responce, table, currency)
 }

@@ -6,7 +6,14 @@ import (
 )
 
 func getAllRecords(w http.ResponseWriter, r *http.Request, table string) bool {
-	limitStr := r.URL.Query().Get("limit")
+	var limitStr string = r.URL.Query().Get("limit")
+	var currency string = r.URL.Query().Get("currency")
+
+	var balance float64 = 0
+	if !updateExchangeRates(w, &balance, &currency) {
+		return false
+	}
+
 	var rows *sql.Rows
 	var err error
 
@@ -68,5 +75,5 @@ func getAllRecords(w http.ResponseWriter, r *http.Request, table string) bool {
 		responce.Transactions = records
 	}
 
-	return getResponseRecord(w, &responce, table)
+	return getResponseRecord(w, &responce, table, currency)
 }
