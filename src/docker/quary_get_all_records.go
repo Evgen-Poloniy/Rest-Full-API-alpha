@@ -26,21 +26,23 @@ func getAllRecords(w http.ResponseWriter, r *http.Request, table string) bool {
 	if table == "users" {
 		if parametr == "" {
 			parametr = "user_id"
-		}
-		if limit != "" {
-			rows, err = db.Query("SELECT * FROM ? ORDER BY ? ? LIMIT ?", table, parametr, order, limit)
-		} else {
-			rows, err = db.Query("SELECT * FROM ? ORDER BY ? ?", table, parametr, order)
+		} else if parametr == "id" {
+			parametr = "user_id"
+		} else if parametr == "amount" {
+			parametr = "balance"
 		}
 	} else {
 		if parametr == "" {
 			parametr = "transaction_id"
+		} else if parametr == "id" {
+			parametr = "transaction_id"
 		}
-		if limit != "" {
-			rows, err = db.Query("SELECT * FROM ? ORDER BY ? ? LIMIT ?", table, parametr, order, limit)
-		} else {
-			rows, err = db.Query("SELECT * FROM ? ORDER BY ? ?", table, parametr, order)
-		}
+	}
+
+	if limit == "" {
+		rows, err = db.Query("SELECT * FROM " + table + " ORDER BY " + parametr + " " + order)
+	} else {
+		rows, err = db.Query("SELECT * FROM "+table+" ORDER BY "+parametr+" "+order+" LIMIT ?", limit)
 	}
 
 	if err != nil {
