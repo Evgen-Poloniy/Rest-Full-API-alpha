@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"net/http"
+	"strconv"
 )
 
 func getAllRecords(w http.ResponseWriter, r *http.Request, table string) bool {
@@ -10,18 +11,26 @@ func getAllRecords(w http.ResponseWriter, r *http.Request, table string) bool {
 	var parametr string = r.URL.Query().Get("parametr")
 	var order string = r.URL.Query().Get("order")
 	var limit string = r.URL.Query().Get("limit")
+	var offsetStr string = r.URL.Query().Get("offset")
 
 	if order == "" {
 		order = "ASC"
+	}
+
+	if offsetStr == "" {
+		offsetStr = "0"
+	}
+
+	offset, errParse := strconv.ParseInt(offsetStr, 10, 64)
+	if errParse != nil {
+		getResponseError(w, http.StatusBadRequest, "Некорректное значение offset")
+		return false
 	}
 
 	var balance float64 = 0
 	if !updateExchangeRates(w, &balance, &currency) {
 		return false
 	}
-
-	var rows *sql.Rows
-	var err error
 
 	if table == "users" {
 		if parametr == "" {
@@ -39,10 +48,13 @@ func getAllRecords(w http.ResponseWriter, r *http.Request, table string) bool {
 		}
 	}
 
+	var rows *sql.Rows
+	var err error
+
 	if limit == "" {
 		rows, err = db.Query("SELECT * FROM " + table + " ORDER BY " + parametr + " " + order)
 	} else {
-		rows, err = db.Query("SELECT * FROM "+table+" ORDER BY "+parametr+" "+order+" LIMIT ?", limit)
+		rows, err = db.Query("SELECT * FROM "+table+" ORDER BY "+parametr+" "+order+" LIMIT ? OFFSET ?", limit, offset)
 	}
 
 	if err != nil {

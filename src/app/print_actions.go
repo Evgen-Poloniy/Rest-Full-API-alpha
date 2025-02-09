@@ -25,11 +25,13 @@ func printActions() {
 		fmt.Println("3. Получить запись по ID")
 		fmt.Println("4. Получить все записи")
 		fmt.Println("5. Получить количество пользователей")
-		fmt.Println("6. Сделать транзакцию")
-		fmt.Println("7. Обновить баланс")
+		fmt.Println("t. Сделать транзакцию")
+		fmt.Println("u. Обновить баланс")
 		fmt.Println("")
-		fmt.Println("o. Открыть базу данных")
-		fmt.Println("p. Закрыть базу данных")
+		/*
+			fmt.Println("o. Открыть базу данных")
+			fmt.Println("p. Закрыть базу данных")
+		*/
 	}
 	fmt.Println("c. Проверить соединение")
 	fmt.Println("r. Изменить параметры сети")

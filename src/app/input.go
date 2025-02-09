@@ -109,7 +109,7 @@ func choseSortingParametrs() (string, bool) {
 		fmt.Println("Выберите парамерт, для сортировки:")
 		fmt.Println("1. id пользователя/транзакции")
 		fmt.Println("2. Баланс/Сумма транзакции")
-		fmt.Println("2. Время транзакции")
+		fmt.Println("3. Время транзакции")
 		fmt.Println("")
 		fmt.Println("b. Назад")
 
@@ -190,26 +190,27 @@ func input() {
 					} else {
 						order = "DESC"
 					}
-					var limit string = inputParametrs("Ввведите ограничение на кол-во записей:")
+					var limit string = inputParametrs("Ввведите ограничение на кол-во записей или оставьте пустым:")
+					var offset string = inputParametrs("Ввведите отступ записей (пагинацию) или оставьте пустым:")
 					if table == "users" {
 						currency, goBack := choseCurrency()
 						if goBack {
 							continue
 						}
-						makeRequest("GET", ipConfig.Ip, ipConfig.Port, "/users/getAllRecords?currency="+currency+"&parametr="+parametr+"&order="+order+"&limit="+limit)
+						makeRequest("GET", ipConfig.Ip, ipConfig.Port, "/users/getAllRecords?currency="+currency+"&parametr="+parametr+"&order="+order+"&limit="+limit+"&offset="+offset)
 					} else {
 						currency, goBack := choseCurrency()
 						if goBack {
 							continue
 						}
-						makeRequest("GET", ipConfig.Ip, ipConfig.Port, "/transactions/getAllRecords?currency="+currency+"&parametr="+parametr+"&order="+order+"&limit="+limit)
+						makeRequest("GET", ipConfig.Ip, ipConfig.Port, "/transactions/getAllRecords?currency="+currency+"&parametr="+parametr+"&order="+order+"&limit="+limit+"&offset="+offset)
 					}
 					waitInput()
 				}
 			case "5":
 				makeRequest("GET", ipConfig.Ip, ipConfig.Port, "/users/getCountOfRecords")
 				waitInput()
-			case "6":
+			case "t":
 				currency, goBack := choseCurrency()
 				if goBack {
 					continue
@@ -219,7 +220,7 @@ func input() {
 				var amount string = inputParametrs("Введите сумму транзакции в выбранной валюте:")
 				makeRequest("POST", ipConfig.Ip, ipConfig.Port, "/users/makeTransaction?sender_id="+idSender+"&receiver_id="+idReceiver+"&amount="+amount+"&currency="+currency)
 				waitInput()
-			case "7":
+			case "u":
 				currency, goBack := choseCurrency()
 				if goBack {
 					continue
@@ -228,15 +229,17 @@ func input() {
 				var updateBalance string = inputParametrs("Введите сумму начисления(>0)/списания(<0) в выбранной валюте:")
 				makeRequest("POST", ipConfig.Ip, ipConfig.Port, "/users/updateBalanceByID?user_id="+id+"&update_balance="+updateBalance+"&currency="+currency)
 				waitInput()
-			case "o":
-				var password string = inputParametrs("Введите пароль от базы данных:")
-				fmt.Println(password)
-				openOrCloseDB("openDB", password)
-				waitInput()
-			case "p":
-				var password string = inputParametrs("Введите пароль от базы данных:")
-				openOrCloseDB("closeDB", password)
-				waitInput()
+			/*
+				case "o":
+					var password string = inputParametrs("Введите пароль от базы данных:")
+					fmt.Println(password)
+					openOrCloseDB("openDB", password)
+					waitInput()
+				case "p":
+					var password string = inputParametrs("Введите пароль от базы данных:")
+					openOrCloseDB("closeDB", password)
+					waitInput()
+			*/
 			case "c":
 				ipConfig.Status = checkConnection()
 				PrintMessageAboutStatusConnection()
