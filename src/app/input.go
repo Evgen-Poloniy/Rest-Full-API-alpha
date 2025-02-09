@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 )
 
 func waitInput() {
@@ -18,6 +19,13 @@ func inputParametrs(message string) string {
 	return parametrs
 }
 
+type Tables map[string]string
+
+var tables = Tables{
+	"1": "users",
+	"2": "transactions",
+}
+
 func choseTable() string {
 	for {
 		fmt.Println("Выберите таблицу:")
@@ -31,14 +39,11 @@ func choseTable() string {
 		fmt.Scanln(&choseTable)
 		clearConsole()
 
-		switch choseTable {
-		case "1":
-			return "users"
-		case "2":
-			return "transactions"
-		case "b":
+		if choseTable == "b" {
 			return "nil"
-		default:
+		} else if _, has := tables[choseTable]; has {
+			return tables[choseTable]
+		} else {
 			fmt.Println("Неверный ввод")
 			waitInput()
 			clearConsole()
@@ -46,24 +51,38 @@ func choseTable() string {
 	}
 }
 
+type CurrencySet map[string][2]string
+
+var currencies = CurrencySet{
+	"1":  {"RUB", "Рубль"},
+	"2":  {"USD", "Доллар США"},
+	"3":  {"EUR", "Евро"},
+	"4":  {"CNY", "Юань"},
+	"5":  {"JPY", "Иен"},
+	"6":  {"KRW", "Вон"},
+	"7":  {"GBP", "Фунт стерлингов"},
+	"8":  {"INR", "Индийский рупий"},
+	"9":  {"KZT", "Тенге"},
+	"10": {"KGS", "Киргизский сом"},
+	"11": {"UZS", "Узбекский сум"},
+	"12": {"TJS", "Сомони"},
+	"13": {"UAH", "Гривна"},
+	"14": {"BYN", "Белорусский рубль"},
+	"15": {"TRY", "Туретская лира"},
+}
+
+func printCurrency() {
+	var lenth int = len(currencies) + 1
+	for i := 1; i < lenth; i++ {
+		var iStr string = strconv.Itoa(i)
+		fmt.Println(iStr+".", currencies[iStr][1], "("+currencies[iStr][0]+")")
+	}
+}
+
 func choseCurrency() (string, bool) {
 	for {
-		fmt.Println("Выберите валюту, в которой вы хотите получить ответ:")
-		fmt.Println("1. Рубль (RUB)")
-		fmt.Println("2. Доллар США (USD)")
-		fmt.Println("3. Евро (EUR)")
-		fmt.Println("4. Юань (CNY)")
-		fmt.Println("5. Иен (JPY)")
-		fmt.Println("6. Вон (KRW)")
-		fmt.Println("7. Фунт стерлингов (GBP)")
-		fmt.Println("8. Индийский рупий(INR)")
-		fmt.Println("9. Тенге (KZT)")
-		fmt.Println("10. Киргизский сом (KGS)")
-		fmt.Println("11. Узбекский сум (UZS)")
-		fmt.Println("12. Сомони (TJS)")
-		fmt.Println("13. Гривна (UAH)")
-		fmt.Println("14. Белорусский рубль(BYN)")
-		fmt.Println("15. Туретская лира(TRY)")
+		fmt.Println("Выберите валюту:")
+		printCurrency()
 
 		fmt.Println("")
 		fmt.Println("b. Назад")
@@ -73,37 +92,39 @@ func choseCurrency() (string, bool) {
 		fmt.Scanln(&choseTable)
 		clearConsole()
 
-		switch choseTable {
+		if choseTable == "b" {
+			return "nil", true
+		} else if _, has := currencies[choseTable]; has {
+			return currencies[choseTable][0], false
+		} else {
+			fmt.Println("Неверный ввод")
+			waitInput()
+			clearConsole()
+		}
+	}
+}
+
+func choseSortingParametrs() (string, bool) {
+	for {
+		fmt.Println("Выберите парамерт, для сортировки:")
+		fmt.Println("1. id пользователя/транзакции")
+		fmt.Println("2. Баланс/Сумма транзакции")
+		fmt.Println("2. Время транзакции")
+		fmt.Println("")
+		fmt.Println("b. Назад")
+
+		var sortingParametrs string = ""
+
+		fmt.Scanln(&sortingParametrs)
+		clearConsole()
+
+		switch sortingParametrs {
 		case "1":
-			return "RUB", false
+			return "id", false
 		case "2":
-			return "USD", false
+			return "amount", false
 		case "3":
-			return "EUR", false
-		case "4":
-			return "CNY", false
-		case "5":
-			return "JPY", false
-		case "6":
-			return "KRW", false
-		case "7":
-			return "GBP", false
-		case "8":
-			return "INR", false
-		case "9":
-			return "KZT", false
-		case "10":
-			return "KGS", false
-		case "11":
-			return "UZS", false
-		case "12":
-			return "TJS", false
-		case "13":
-			return "UAH", false
-		case "14":
-			return "BYN", false
-		case "15":
-			return "TRY", false
+			return "transaction_time", false
 		case "b":
 			return "nil", true
 		default:
@@ -159,19 +180,29 @@ func input() {
 			case "4":
 				var table string = choseTable()
 				if table != "nil" {
+					parametr, goBack := choseSortingParametrs()
+					if goBack {
+						continue
+					}
+					var order string = inputParametrs("Сортировать по возрастанию? [y/n]:")
+					if order != "y" || order == "" {
+						order = "ASC"
+					} else {
+						order = "DESC"
+					}
 					var limit string = inputParametrs("Ввведите ограничение на кол-во записей:")
 					if table == "users" {
 						currency, goBack := choseCurrency()
 						if goBack {
 							continue
 						}
-						makeRequest("GET", ipConfig.Ip, ipConfig.Port, "/users/getAllRecords?limit="+limit+"&currency="+currency)
+						makeRequest("GET", ipConfig.Ip, ipConfig.Port, "/users/getAllRecords?currency="+currency+"&parametr="+parametr+"&order="+order+"&limit="+limit)
 					} else {
 						currency, goBack := choseCurrency()
 						if goBack {
 							continue
 						}
-						makeRequest("GET", ipConfig.Ip, ipConfig.Port, "/transactions/getAllRecords?limit="+limit+"&currency="+currency)
+						makeRequest("GET", ipConfig.Ip, ipConfig.Port, "/transactions/getAllRecords?currency="+currency+"&parametr="+parametr+"&order="+order+"&limit="+limit)
 					}
 					waitInput()
 				}

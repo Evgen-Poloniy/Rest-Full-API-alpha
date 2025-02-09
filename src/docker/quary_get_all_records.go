@@ -6,8 +6,14 @@ import (
 )
 
 func getAllRecords(w http.ResponseWriter, r *http.Request, table string) bool {
-	var limitStr string = r.URL.Query().Get("limit")
 	var currency string = r.URL.Query().Get("currency")
+	var parametr string = r.URL.Query().Get("parametr")
+	var order string = r.URL.Query().Get("order")
+	var limit string = r.URL.Query().Get("limit")
+
+	if order == "" {
+		order = "ASC"
+	}
 
 	var balance float64 = 0
 	if !updateExchangeRates(w, &balance, &currency) {
@@ -18,16 +24,22 @@ func getAllRecords(w http.ResponseWriter, r *http.Request, table string) bool {
 	var err error
 
 	if table == "users" {
-		if limitStr != "" {
-			rows, err = db.Query("SELECT * FROM "+table+" ORDER BY user_id LIMIT ?", limitStr)
+		if parametr == "" {
+			parametr = "user_id"
+		}
+		if limit != "" {
+			rows, err = db.Query("SELECT * FROM ? ORDER BY ? ? LIMIT ?", table, parametr, order, limit)
 		} else {
-			rows, err = db.Query("SELECT * FROM " + table + " ORDER BY user_id")
+			rows, err = db.Query("SELECT * FROM ? ORDER BY ? ?", table, parametr, order)
 		}
 	} else {
-		if limitStr != "" {
-			rows, err = db.Query("SELECT * FROM "+table+" ORDER BY transaction_id LIMIT ?", limitStr)
+		if parametr == "" {
+			parametr = "transaction_id"
+		}
+		if limit != "" {
+			rows, err = db.Query("SELECT * FROM ? ORDER BY ? ? LIMIT ?", table, parametr, order, limit)
 		} else {
-			rows, err = db.Query("SELECT * FROM " + table + " ORDER BY transaction_id")
+			rows, err = db.Query("SELECT * FROM ? ORDER BY ? ?", table, parametr, order)
 		}
 	}
 

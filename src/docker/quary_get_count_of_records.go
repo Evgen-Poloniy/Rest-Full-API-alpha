@@ -24,7 +24,7 @@ func getResponceCount(w http.ResponseWriter, count RecordOfAgregation) {
 func getCountOfRecords(w http.ResponseWriter, table string) bool {
 	var count int
 
-	err := db.QueryRow("SELECT COUNT(DISTINCT user_id) FROM " + table).Scan(&count)
+	err := db.QueryRow("SELECT COUNT(DISTINCT user_id) FROM ?", table).Scan(&count)
 	if err != nil {
 		getResponseError(w, 204, "В таблице нет пользователей")
 		return false
