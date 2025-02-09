@@ -229,17 +229,6 @@ func input() {
 				var updateBalance string = inputParametrs("Введите сумму начисления(>0)/списания(<0) в выбранной валюте:")
 				makeRequest("POST", ipConfig.Ip, ipConfig.Port, "/users/updateBalanceByID?user_id="+id+"&update_balance="+updateBalance+"&currency="+currency)
 				waitInput()
-			/*
-				case "o":
-					var password string = inputParametrs("Введите пароль от базы данных:")
-					fmt.Println(password)
-					openOrCloseDB("openDB", password)
-					waitInput()
-				case "p":
-					var password string = inputParametrs("Введите пароль от базы данных:")
-					openOrCloseDB("closeDB", password)
-					waitInput()
-			*/
 			case "c":
 				ipConfig.Status = checkConnection()
 				PrintMessageAboutStatusConnection()

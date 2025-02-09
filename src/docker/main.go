@@ -14,7 +14,5 @@ func main() {
 
 	http.HandleFunc("/", dynamicHandler)
 	http.HandleFunc("/checkConnection", checkConnectionHandler)
-	http.HandleFunc("/closeDB", closeDB)
-	http.HandleFunc("/openDB", openDB)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
